@@ -58,18 +58,10 @@ const Img = styled.img`
 interface ICoin {
   id: string;
   name: string;
-  symbol: string;
-  rank: number;
-  is_new: boolean;
-  is_active: boolean;
-  type: string;
+  image: string;
 }
 
-interface ICoinsProps {
-  toggleDark: () => void;
-}
-
-function Coins({ toggleDark }: ICoinsProps) {
+function Coins() {
   const { isLoading, data } = useQuery<ICoin[]>("allCoins", fetchCoins);
 
   return (
@@ -79,7 +71,6 @@ function Coins({ toggleDark }: ICoinsProps) {
       </Helmet>
       <Header>
         <Title>코인</Title>
-        <button onClick={toggleDark}>Toggle Dark Mode</button>
       </Header>
       {isLoading ? (
         <Loader>Loading...</Loader>
@@ -93,9 +84,7 @@ function Coins({ toggleDark }: ICoinsProps) {
                   state: { name: coin.name },
                 }}
               >
-                <Img
-                  src={`https://cryptocurrencyliveprices.com/img/${coin.id}.png`}
-                />
+                <Img src={coin.image} />
                 {coin.name} &rarr;
               </Link>
             </Coin>

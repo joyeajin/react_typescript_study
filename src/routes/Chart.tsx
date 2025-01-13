@@ -1,31 +1,32 @@
 import { useQuery } from "react-query";
 import { fetchCoinHistory } from "../api";
 import ApexCharts from "react-apexcharts";
+import { useRecoilValue } from "recoil";
+import { isDarkAtom } from "../atom";
 
-interface IHistorical {
-  time_open: number;
-  time_close: number;
-  open: string;
-  high: string;
-  low: string;
-  close: string;
-  volume: string;
-  market_cap: number;
+interface IHistorical extends Array<number> {
+  0: number; // timestamp
+  1: number; // open price
+  2: number; // high price
+  3: number; // low price
+  4: number; // close price
 }
 
 interface ChartProps {
   coinId: string;
-  isDark: boolean;
 }
 
-function Chart({ coinId, isDark }: ChartProps) {
+function Chart({ coinId }: ChartProps) {
+  const isDark = useRecoilValue(isDarkAtom);
+
   const { isLoading, data } = useQuery<IHistorical[]>(
     ["ohlcv", coinId],
-    () => fetchCoinHistory(coinId),
-    {
-      refetchInterval: 10000,
-    }
+    () => fetchCoinHistory(coinId)
+    // {
+    //   refetchInterval: 10000,
+    // }
   );
+
   return (
     <div>
       {isLoading ? (
@@ -36,7 +37,7 @@ function Chart({ coinId, isDark }: ChartProps) {
           series={[
             {
               name: "Price",
-              data: data?.map((price) => parseFloat(price.close)) ?? [],
+              data: data?.map((price) => price[4]) ?? [],
             },
           ]}
           options={{
@@ -73,7 +74,7 @@ function Chart({ coinId, isDark }: ChartProps) {
               },
               type: "datetime",
               categories: data?.map((price) =>
-                new Date(price.time_close * 1000).toUTCString()
+                new Date(price[0] * 1000).toUTCString()
               ),
             },
             fill: {

@@ -10,7 +10,7 @@ import styled from "styled-components";
 import Price from "./Price";
 import Chart from "./Chart";
 import { useQuery } from "react-query";
-import { fetchCoinInfo, fetchCoinTickers } from "../api";
+import { fetchCoinInfo } from "../api";
 import { Helmet } from "react-helmet";
 
 const Container = styled.div`
@@ -42,6 +42,7 @@ const Overview = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
   padding: 10px 20px;
   border-radius: 10px;
+  margin-bottom: 20px;
 `;
 const OverviewItem = styled.div`
   display: flex;
@@ -54,7 +55,7 @@ const OverviewItem = styled.div`
     margin-bottom: 5px;
   }
 `;
-const Description = styled.p`
+const Description = styled.div`
   margin: 20px 0px;
 `;
 
@@ -89,68 +90,77 @@ interface RouteState {
 
 interface InfoData {
   id: string;
-  name: string;
   symbol: string;
-  rank: number;
-  is_new: boolean;
-  is_active: boolean;
-  type: string;
-  contract: string;
-  platform: string;
-  contracts: object;
-  logo: string;
-  parent: object;
-  description: string;
-  message: string;
-  open_source: boolean;
-  started_at: string;
-  development_status: string;
-  hardware_wallet: boolean;
-  proof_type: string;
-  org_structure: string;
-  hash_algorithm: string;
-  first_data_at: string;
-  last_data_at: string;
-}
-
-interface PriceData {
-  id: string;
   name: string;
-  symbol: string;
-  rank: number;
-  total_supply: number;
-  max_supply: number;
-  beta_value: number;
-  first_data_at: string;
-  last_updated: string;
-  quotes: {
-    USD: {
-      ath_date: string;
-      ath_price: number;
-      market_cap: number;
-      market_cap_change_24h: number;
-      percent_change_1h: number;
-      percent_change_1y: number;
-      percent_change_6h: number;
-      percent_change_7d: number;
-      percent_change_12h: number;
-      percent_change_15m: number;
-      percent_change_24h: number;
-      percent_change_30d: number;
-      percent_change_30m: number;
-      percent_from_price_ath: number;
-      price: number;
-      volume_24h: number;
-      volume_24h_change_24h: number;
-    };
+  web_slug: string;
+  asset_platform_id: object;
+  platforms: object;
+  detail_platforms: object;
+  block_time_in_minutes: number;
+  hashing_algorithm: string;
+  categories: object;
+  preview_listing: boolean;
+  public_notice: object;
+  additional_notices: object;
+  description: {
+    en: string;
   };
+  links: object;
+  image: object;
+  country_origin: string;
+  genesis_date: string;
+  sentiment_votes_up_percentage: number;
+  sentiment_votes_down_percentage: number;
+  watchlist_portfolio_users: number;
+  market_cap_rank: number;
+  market_data: {
+    current_price: {
+      usd: number;
+    };
+    total_supply: number;
+    max_supply: number;
+  };
+  community_data: object;
+  developer_data: object;
+  status_updates: object;
+  last_updated: string;
+  tickers: object;
 }
 
-interface iCoinProps {
-  isDark: boolean;
-}
+// interface PriceData {
+//   id: string;
+//   name: string;
+//   symbol: string;
+//   rank: number;
+//   total_supply: number;
+//   max_supply: number;
+//   beta_value: number;
+//   first_data_at: string;
+//   last_updated: string;
+//   quotes: {
+//     USD: {
+//       ath_date: string;
+//       ath_price: number;
+//       market_cap: number;
+//       market_cap_change_24h: number;
+//       percent_change_1h: number;
+//       percent_change_1y: number;
+//       percent_change_6h: number;
+//       percent_change_7d: number;
+//       percent_change_12h: number;
+//       percent_change_15m: number;
+//       percent_change_24h: number;
+//       percent_change_30d: number;
+//       percent_change_30m: number;
+//       percent_from_price_ath: number;
+//       price: number;
+//       volume_24h: number;
+//       volume_24h_change_24h: number;
+//     };
+//   };
+// }
 
-function Coin({ isDark }: iCoinProps) {
+function Coin() {
   const { coinId } = useParams<RouteParams>();
   const { state } = useLocation<RouteState>();
 
@@ -160,15 +170,14 @@ function Coin({ isDark }: iCoinProps) {
     ["info", coinId],
     () => fetchCoinInfo(coinId)
   );
-  const { isLoading: tickersLoading, data: tickersData } = useQuery<PriceData>(
-    ["tickers", coinId],
-    () => fetchCoinTickers(coinId),
-    {
-      refetchInterval: 5000,
-    }
-  );
 
-  const loading = infoLoading || tickersLoading;
+  // const { isLoading: tickersLoading, data: tickersData } = useQuery<PriceData>(
+  //   ["tickers", coinId],
+  //   () => fetchCoinTickers(coinId)
+
+  // );
+
+  const loading = infoLoading;
 
   return (
     <Container>
@@ -189,26 +198,27 @@ function Coin({ isDark }: iCoinProps) {
           <Overview>
             <OverviewItem>
               <span>Rank:</span>
-              <span>{infoData?.rank}</span>
+              <span>{infoData?.market_cap_rank}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Symbol:</span>
-              <span>${infoData?.symbol}</span>
+              <span>{infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Price:</span>
-              <span>{tickersData?.quotes.USD.price}</span>
+              <span>${infoData?.market_data.current_price.usd}</span>
             </OverviewItem>
           </Overview>
-          <Description>{infoData?.description}</Description>
+          {/* <Description>{infoData?.description.en}</Description> */}
+
           <Overview>
             <OverviewItem>
               <span>Total Supply:</span>
-              <span>{tickersData?.total_supply}</span>
+              <span>{infoData?.market_data.total_supply}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Max Supply:</span>
-              <span>{tickersData?.max_supply}</span>
+              <span>{infoData?.market_data.max_supply}</span>
             </OverviewItem>
           </Overview>
 
@@ -226,9 +236,20 @@ function Coin({ isDark }: iCoinProps) {
               <Price />
             </Route>
             <Route path={`/:coinId/chart`}>
-              <Chart isDark={isDark} coinId={coinId} />
+              <Chart coinId={coinId} />
             </Route>
           </Switch>
+
+          <Overview>
+            <OverviewItem>
+              <h3>What is {coinId}?</h3>
+              <Description
+                dangerouslySetInnerHTML={{
+                  __html: infoData?.description.en || "",
+                }}
+              />
+            </OverviewItem>
+          </Overview>
         </>
       )}
     </Container>
